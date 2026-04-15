@@ -1,0 +1,6 @@
+{
+  "name": "baseline_minilm_top5",
+  "retrieval_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "top_k": 5,
+  "reader_model": "google/flan-t5-base"
+}

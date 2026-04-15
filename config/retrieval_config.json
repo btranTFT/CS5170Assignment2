@@ -1,0 +1,6 @@
+{
+  "model_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "top_k": 5,
+  "index_dir": "artifacts/retrieval_index",
+  "use_train_only": true
+}
