@@ -8,14 +8,16 @@ from pathlib import Path
 from src.rag.evaluate import best_score, read_lines
 
 
-def paired_scores(preds: list[str], refs: list[str]) -> tuple[list[float], list[float]]:
+def paired_scores(preds: list[str], refs: list[str]) -> tuple[list[float], list[float], list[float]]:
     em_scores: list[float] = []
     f1_scores: list[float] = []
+    recall_scores: list[float] = []
     for pred, ref in zip(preds, refs):
-        em, f1 = best_score(pred, ref)
+        em, f1, recall = best_score(pred, ref)
         em_scores.append(em)
         f1_scores.append(f1)
-    return em_scores, f1_scores
+        recall_scores.append(recall)
+    return em_scores, f1_scores, recall_scores
 
 
 def mean(values: list[float]) -> float:
@@ -62,10 +64,13 @@ def main() -> None:
             f"Line count mismatch: A={len(pred_a)} B={len(pred_b)} refs={len(refs)}"
         )
 
-    em_a, f1_a = paired_scores(pred_a, refs)
-    em_b, f1_b = paired_scores(pred_b, refs)
+    em_a, f1_a, recall_a = paired_scores(pred_a, refs)
+    em_b, f1_b, recall_b = paired_scores(pred_b, refs)
 
     results = {
+        "answer_recall": paired_bootstrap_pvalue(
+            recall_a, recall_b, n_samples=args.samples, seed=args.seed
+        ),
         "exact_match": paired_bootstrap_pvalue(em_a, em_b, n_samples=args.samples, seed=args.seed),
         "token_f1": paired_bootstrap_pvalue(f1_a, f1_b, n_samples=args.samples, seed=args.seed),
     }

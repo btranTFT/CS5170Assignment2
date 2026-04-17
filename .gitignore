@@ -1,19 +1,39 @@
-# Ignore phase plans and runbook
-PHASE*_PLAN.md
-PHASE*_DATA.md
-PHASE*_RETRIEVAL.md
-PHASE*_RAG_INTEGRATION.md
-PHASE*_VARIANTS.md
-PHASE*_EVALUATION.md
-PHASE*_REPORT.md
-PHASE*_REPRODUCIBILITY.md
-PHASE*_SUBMISSION.md
-RUNBOOK.md
 
 # Ignore Python cache and artifacts
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.log
+
+# Ignore Python environments
+.venv/
+venv/
+env/
+
+# Ignore Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Ignore build outputs
+build/
+dist/
+*.egg-info/
+
+# Ignore local configuration
+.env
+.env.*
+.python-version
+
+# Ignore editor/IDE files
+.vscode/
+.idea/
+
+# Ignore generated runtime artifacts
 artifacts/
+system_outputs/
 
 # Ignore system files
 .DS_Store

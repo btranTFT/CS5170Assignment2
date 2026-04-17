@@ -50,18 +50,43 @@ def token_f1(prediction: str, reference: str) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
+def answer_recall(prediction: str, reference: str) -> float:
+    pred_tokens = normalize_answer(prediction).split()
+    ref_tokens = normalize_answer(reference).split()
+
+    if not pred_tokens and not ref_tokens:
+        return 1.0
+    if not ref_tokens:
+        return 1.0
+    if not pred_tokens:
+        return 0.0
+
+    common = {}
+    for t in pred_tokens:
+        common[t] = common.get(t, 0) + 1
+
+    overlap = 0
+    for t in ref_tokens:
+        if common.get(t, 0) > 0:
+            overlap += 1
+            common[t] -= 1
+
+    return overlap / len(ref_tokens)
+
+
 def exact_match(prediction: str, reference: str) -> float:
     return float(normalize_answer(prediction) == normalize_answer(reference))
 
 
-def best_score(prediction: str, reference_line: str) -> tuple[float, float]:
+def best_score(prediction: str, reference_line: str) -> tuple[float, float, float]:
     references = [r.strip() for r in reference_line.split(";") if r.strip()]
     if not references:
         references = [""]
 
     em = max(exact_match(prediction, ref) for ref in references)
     f1 = max(token_f1(prediction, ref) for ref in references)
-    return em, f1
+    recall = max(answer_recall(prediction, ref) for ref in references)
+    return em, f1, recall
 
 
 def evaluate(predictions: list[str], references: list[str]) -> dict[str, float]:
@@ -70,15 +95,18 @@ def evaluate(predictions: list[str], references: list[str]) -> dict[str, float]:
 
     em_scores: list[float] = []
     f1_scores: list[float] = []
+    recall_scores: list[float] = []
 
     for pred, ref in zip(predictions, references):
-        em, f1 = best_score(pred, ref)
+        em, f1, recall = best_score(pred, ref)
         em_scores.append(em)
         f1_scores.append(f1)
+        recall_scores.append(recall)
 
     n = len(predictions)
     return {
         "count": float(n),
+        "answer_recall": sum(recall_scores) / n,
         "exact_match": sum(em_scores) / n,
         "token_f1": sum(f1_scores) / n,
     }
